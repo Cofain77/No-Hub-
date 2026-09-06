@@ -31,6 +31,12 @@
 html,body{
   margin:0;padding:0;background:var(--bg);color:var(--txt);
   height:100dvh;overflow:hidden;overscroll-behavior:none;
+  /* Ersetzt den früheren JS-Trick gegen Doppeltipp-Zoom (der per
+     preventDefault auf touchend jeden schnell aufeinanderfolgenden Klick
+     mitgeschluckt hat — genau das Zehn-Tap-Muster von Shield Active). Diese
+     CSS-Eigenschaft unterdrückt Doppeltipp-Zoom nativ, ohne je einen Klick
+     zu blockieren. */
+  touch-action:manipulation;
 }
 body{
   font:400 15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
