@@ -74,6 +74,7 @@
     resets: [],           // [{startedAt, endedAt, days}]
     createdAt: new Date().toISOString(),
     lastCsvExportAt: null,
+    lastTrigger: null,
     version: 1
   };
 
@@ -128,6 +129,7 @@
     var rec = {
       id: entry.id || newId(),
       ts: entry.ts,                                  // ISO-String des Ereignisses
+      trigger: (entry.trigger || '').trim(),         // Auslöser aus der Auswahl
       note: (entry.note || '').trim(),
       createdAt: entry.createdAt || new Date().toISOString(),
       exportedAt: entry.exportedAt || null

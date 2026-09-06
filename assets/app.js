@@ -7,6 +7,13 @@
   var TAPS_TO_END = 10;
   var TAP_TIMEOUT = 5000;
 
+  /* Auslöser für die Impuls-Auswahl. Reihenfolge = Reihenfolge im Picker.
+     Hier anpassen, wenn andere Kategorien besser passen. */
+  var TRIGGERS = [
+    'Langeweile', 'Stress', 'Müdigkeit', 'Allein', 'Social Media',
+    'Nachts wach', 'Aufwachen', 'Frust', 'Einsamkeit', 'Sonstiges'
+  ];
+
   var LEVELS = [
     { n: 1, name: 'Awakening',   start: 0,  range: 'Day 0',
       text: 'The decision is made. Nothing has changed yet, and that is fine. Getting through today is the entire task.' },
@@ -42,6 +49,13 @@
   }
   function fmtSince(d) {
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  }
+  function fmtDateLabel(d) {
+    var now = new Date();
+    if (isSameDay(d, now)) return 'Heute';
+    var y = new Date(now.getTime() - DAY);
+    if (isSameDay(d, y)) return 'Gestern';
+    return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' });
   }
   function fmtDayShort(d) {
     return d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
@@ -163,9 +177,10 @@
     li.className = 'ientry';
     var html = '<span class="ientry__time">' + timeVal(d) + '</span>';
     if (withDate) html += '<span class="ientry__date">' + fmtDayShort(d) + '</span>';
-    html += '<span class="ientry__note"></span>' +
+    html += '<span class="ientry__trig"></span><span class="ientry__note"></span>' +
             '<button class="ientry__del" type="button" aria-label="Löschen">&times;</button>';
     li.innerHTML = html;
+    li.querySelector('.ientry__trig').textContent = rec.trigger || '';
     li.querySelector('.ientry__note').textContent = rec.note || '';
     li.querySelector('.ientry__del').addEventListener('click', function () {
       if (!confirm('Diesen Impuls löschen?')) return;
@@ -232,18 +247,44 @@
     document.body.style.overflow = '';
   }
 
+  function fillTriggerOptions() {
+    var sel = $('impTrigger');
+    if (sel.options.length) return;
+    TRIGGERS.forEach(function (t) {
+      var o = document.createElement('option');
+      o.value = t; o.textContent = t;
+      sel.appendChild(o);
+    });
+  }
+
+  /* Die sichtbaren Boxen spiegeln nur, was in den unsichtbaren Feldern steht. */
+  function syncPickerLabels() {
+    var d = fromInputs($('impDate').value, $('impTime').value || '00:00');
+    $('impDateLabel').textContent = d ? fmtDateLabel(d) : '—';
+    $('impTimeLabel').textContent = $('impTime').value || '--:--';
+    $('impTrigLabel').textContent = $('impTrigger').value || '—';
+  }
+
   function openImpulseSheet() {
     var now = new Date();
+    fillTriggerOptions();
     $('impDate').value = dateVal(now);
     $('impTime').value = timeVal(now);
+    // zuletzt gewählter Auslöser — Impulse wiederholen sich meist
+    $('impTrigger').value = (TRIGGERS.indexOf(state.lastTrigger) >= 0)
+      ? state.lastTrigger : TRIGGERS[0];
     $('impNote').value = '';
+    syncPickerLabels();
     openSheet('sheetImpulse', 'scrimImpulse');
   }
 
   function saveImpulse() {
     var when = fromInputs($('impDate').value, $('impTime').value);
     if (!when) { toast('Bitte Datum und Zeit prüfen.'); return; }
-    Store.addImpulse({ ts: when.toISOString(), note: $('impNote').value })
+    var trigger = $('impTrigger').value || '';
+    state.lastTrigger = trigger;
+    Store.saveState(state);
+    Store.addImpulse({ ts: when.toISOString(), trigger: trigger, note: $('impNote').value })
       .then(function (list) {
         IMPULSES = list;
         closeSheet('sheetImpulse', 'scrimImpulse');
@@ -312,7 +353,8 @@
   }
 
   function buildCsv() {
-    var head = ['id', 'date', 'time', 'iso_timestamp', 'weekday', 'weekday_num', 'hour', 'minute', 'note', 'created_at', 'exported_at'];
+    var head = ['id', 'date', 'time', 'iso_timestamp', 'weekday', 'weekday_num', 'hour', 'minute',
+                'trigger', 'note', 'created_at', 'exported_at'];
     var rows = [head.join(',')];
     // aufsteigend nach Zeit — angenehmer für Zeitreihen-Auswertung
     var list = IMPULSES.slice().sort(function (a, b) { return a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0; });
@@ -323,7 +365,7 @@
         d.toLocaleDateString('en-US', { weekday: 'long' }),
         (d.getDay() === 0 ? 7 : d.getDay()),
         d.getHours(), d.getMinutes(),
-        r.note || '', r.createdAt || '', r.exportedAt || ''
+        r.trigger || '', r.note || '', r.createdAt || '', r.exportedAt || ''
       ].map(csvCell).join(','));
     });
     return rows.join('\r\n') + '\r\n';
@@ -460,6 +502,10 @@
     $('impCancel').addEventListener('click', function () { closeSheet('sheetImpulse', 'scrimImpulse'); });
     $('scrimImpulse').addEventListener('click', function () { closeSheet('sheetImpulse', 'scrimImpulse'); });
     $('impSave').addEventListener('click', saveImpulse);
+    ['impDate', 'impTime', 'impTrigger'].forEach(function (id) {
+      $(id).addEventListener('change', syncPickerLabels);
+      $(id).addEventListener('input', syncPickerLabels);
+    });
 
     $('phraseInput').addEventListener('input', function () {
       var ok = this.value.trim() === PHRASE;

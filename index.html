@@ -134,18 +134,52 @@
 <div class="sheet sheet--half" id="sheetImpulse" hidden role="dialog" aria-modal="true" aria-label="Impuls hinzufügen">
   <div class="sheet__grip"></div>
   <div class="sheet__body">
-    <h2 class="sheet__title">Impuls</h2>
-    <div class="field">
-      <label class="field__l">Wann</label>
-      <div class="row2">
-        <input type="date" id="impDate" class="input">
-        <input type="time" id="impTime" class="input">
+    <section class="tcard">
+      <h2 class="tcard__t">Zeitpunkt</h2>
+
+      <div class="prow">
+        <div class="prow__l">
+          <span class="prow__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v3M16 3v3"/>
+              <path d="M7.5 14h.01M11.5 14h.01M15.5 14h.01M7.5 17.5h.01M11.5 17.5h.01"/>
+            </svg>
+          </span>Datum
+        </div>
+        <label class="pbox" for="impDate"><span id="impDateLabel">Heute</span>
+          <input type="date" id="impDate" class="pbox__in"></label>
       </div>
-    </div>
-    <div class="field">
-      <label class="field__l">Notiz <span class="field__hint">kurz halten</span></label>
-      <textarea id="impNote" class="notefield" rows="2" maxlength="280" placeholder="z. B. müde, Instagram"></textarea>
-    </div>
+
+      <div class="prow">
+        <div class="prow__l">
+          <span class="prow__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M13.2 2.5 4.6 13.2h5.6l-1.4 8.3 8.6-10.7h-5.6l1.4-8.3Z"/>
+            </svg>
+          </span>Impuls
+        </div>
+        <label class="pbox pbox--select" for="impTrigger"><span id="impTrigLabel">&nbsp;</span>
+          <svg class="chev" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M8 10.5 12 6.5l4 4"/><path d="M8 13.5 12 17.5l4-4"/>
+          </svg>
+          <select id="impTrigger" class="pbox__in"></select></label>
+      </div>
+
+      <div class="prow">
+        <div class="prow__l">
+          <span class="prow__ico" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="21" height="21" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+              <circle cx="12" cy="12" r="9"/><path d="M12 7v5.3l3.2 2"/>
+            </svg>
+          </span>Zeit
+        </div>
+        <label class="pbox" for="impTime"><span id="impTimeLabel">00:00</span>
+          <input type="time" id="impTime" class="pbox__in"></label>
+      </div>
+
+      <textarea id="impNote" class="notefield" rows="2" maxlength="280"
+                placeholder="Notiz, kurz halten"></textarea>
+    </section>
   </div>
   <div class="sheet__actions">
     <button class="btn btn--ghost" id="impCancel" type="button">Abbrechen</button>

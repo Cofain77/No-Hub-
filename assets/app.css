@@ -205,6 +205,12 @@ button{border:0;background:none;cursor:pointer}
 }
 .ientry__time{font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;min-width:48px}
 .ientry__date{font-size:12px;color:var(--txt-3);min-width:52px}
+.ientry__trig{
+  font-size:12.5px;color:var(--green-bright);font-weight:600;
+  background:var(--green-dim);padding:3px 9px;border-radius:999px;
+  white-space:nowrap;flex:none;
+}
+.ientry__trig:empty{display:none}
 .ientry__note{flex:1;font-size:14px;color:var(--txt-2);overflow-wrap:anywhere}
 .ientry__del{color:var(--txt-3);font-size:19px;padding:2px 4px;line-height:1}
 .ilist--all{max-height:320px;overflow-y:auto;-webkit-overflow-scrolling:touch}
@@ -256,13 +262,14 @@ button{border:0;background:none;cursor:pointer}
   animation:rise .3s cubic-bezier(.22,1,.36,1);
 }
 @keyframes rise{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.sheet--half{height:50dvh;min-height:340px}
+/* Inhaltsgetrieben: steigt bis knapp über die Hälfte, nie weiter. */
+.sheet--half{height:auto;max-height:72dvh}
 .sheet--tall{height:76dvh;max-height:660px}
 .sheet__grip{
   width:38px;height:4px;border-radius:4px;background:#2c3335;
-  margin:10px auto 0;flex:none;
+  margin:9px auto 0;flex:none;
 }
-.sheet__body{flex:1;overflow-y:auto;padding:20px 22px 8px;-webkit-overflow-scrolling:touch}
+.sheet__body{flex:1;overflow-y:auto;padding:16px 18px 6px;-webkit-overflow-scrolling:touch}
 .sheet__title{margin:0 0 18px;font-size:21px;font-weight:700}
 .sheet__h1{margin:16px 0 10px;font-size:34px;font-weight:700;letter-spacing:-1px}
 .sheet__p{margin:0 0 26px;font-size:16.5px;line-height:1.45;color:var(--txt-2)}
@@ -280,15 +287,54 @@ button{border:0;background:none;cursor:pointer}
   background:radial-gradient(circle at 50% 50%,rgba(239,68,68,.16),transparent 70%);
 }
 
-.field{margin-bottom:18px}
-.field__l{display:block;margin-bottom:8px;font-size:13px;color:var(--txt-3)}
-.field__hint{color:#4d5558}
-.notefield{
-  width:100%;padding:11px 13px;border-radius:12px;resize:none;
-  background:var(--card-2);border:1px solid var(--line);
-  font-size:16px;line-height:1.4;max-height:76px;
+/* ── Zeitpunkt-Karte im Impuls-Sheet ────────────────────── */
+.tcard{
+  background:var(--card);border:1px solid var(--line-soft);
+  border-radius:20px;padding:16px 15px 15px;
 }
-.notefield::placeholder{color:#4d5558}
+.tcard__t{margin:0 0 6px;font-size:19px;font-weight:700;letter-spacing:-.2px}
+
+.prow{
+  display:grid;grid-template-columns:1fr minmax(150px,50%);
+  align-items:center;gap:12px;padding:7px 0;
+}
+.prow__l{
+  display:flex;align-items:center;gap:12px;
+  font-size:17px;font-weight:500;
+}
+.prow__ico{display:flex;color:var(--txt-2);flex:none}
+
+.pbox{
+  position:relative;display:flex;align-items:center;justify-content:center;gap:8px;
+  min-height:50px;padding:0 14px;border-radius:13px;
+  background:var(--card-2);border:1px solid #2b3336;
+  font-size:17px;font-weight:500;text-align:center;cursor:pointer;
+  transition:border-color .15s ease,background .15s ease;
+}
+.pbox:active{background:#171c1e;border-color:#3a4448}
+.pbox > span{
+  flex:1;text-align:center;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  font-variant-numeric:tabular-nums;
+}
+.pbox--select{background:#1b2124;padding:0 10px 0 12px;font-size:15.5px}
+.pbox .chev{color:var(--txt-2);flex:none}
+/* Das echte Eingabefeld liegt unsichtbar darüber: iOS öffnet dadurch seinen
+   nativen Picker, während die Box frei gestaltbar bleibt. */
+.pbox__in{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0;border:0;background:transparent;padding:0;margin:0;
+  font-size:16px;      /* verhindert den Auto-Zoom von Safari */
+  -webkit-appearance:none;appearance:none;
+}
+
+.notefield{
+  width:100%;margin-top:12px;padding:11px 14px;border-radius:13px;resize:none;
+  background:#20272a;border:1px solid transparent;
+  font-size:16px;line-height:1.4;max-height:78px;
+}
+.notefield:focus{border-color:#394347;outline:none}
+.notefield::placeholder{color:#7e888c}
 
 .phraselabel{font-size:14px;color:var(--txt-3);margin-bottom:10px}
 .phrasebox{

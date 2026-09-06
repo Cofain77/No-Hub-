@@ -51,8 +51,26 @@ Beim Zurücksetzen wird der laufende Streak in *Best Streak* und *Days Shielded*
 **Impuls-Einträge werden dabei nie gelöscht.**
 
 **Impuls erfassen.** Das **+** unter dem Shield-Balken öffnet ein Fenster auf halber
-Bildschirmhöhe. Datum und Uhrzeit sind mit der aktuellen Gerätezeit vorbelegt und lassen sich
-ändern. Das Notizfeld ist bewusst klein — ein bis drei Wörter genügen, mehr geht trotzdem.
+Bildschirmhöhe mit drei Feldern:
+
+| Feld | Verhalten |
+|---|---|
+| Datum | vorbelegt mit dem Gerätedatum, zeigt *Heute* / *Gestern* / `TT.MM.JJ`, per Tap änderbar |
+| Impuls | Auswahl des Auslösers — was gerade lief, als der Impuls kam |
+| Zeit | vorbelegt mit der Gerätezeit, per Tap änderbar |
+
+Darunter ein bewusst kleines Notizfeld — ein bis drei Wörter genügen, mehr geht trotzdem.
+
+Der zuletzt gewählte Auslöser ist beim nächsten Mal vorausgewählt, weil sich Impulse in aller
+Regel wiederholen. Die Auswahlliste steht in `assets/app.js` in der Konstante `TRIGGERS`:
+
+```
+Langeweile · Stress · Müdigkeit · Allein · Social Media
+Nachts wach · Aufwachen · Frust · Einsamkeit · Sonstiges
+```
+
+Kurze Begriffe sind Absicht: Die Liste ist eine Auswertungsachse, keine Beschreibung. Wer sie
+ändert, sollte das früh tun — sonst zerfällt die Zeitreihe in alte und neue Kategorien.
 
 ---
 
@@ -80,12 +98,14 @@ Export enthält immer den vollständigen Bestand — auch nach Jahren.
 Spalten:
 
 ```
-id, date, time, iso_timestamp, weekday, weekday_num, hour, minute, note, created_at, exported_at
+id, date, time, iso_timestamp, weekday, weekday_num, hour, minute,
+trigger, note, created_at, exported_at
 ```
 
-`weekday_num` (1 = Montag) und `hour` sind bewusst als eigene Spalten dabei: damit lässt sich
+`weekday_num` (1 = Montag) und `hour` liegen bewusst als eigene Spalten vor: damit lässt sich
 ohne Vorverarbeitung eine Heatmap Wochentag × Stunde bauen und die gefährlichste Tageszeit
-ablesen.
+ablesen. `trigger` ist die zweite Auswertungsachse — sie beantwortet nicht *wann*, sondern
+*woraus* der Impuls entsteht.
 
 ### Vollbackup
 
