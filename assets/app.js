@@ -156,7 +156,8 @@
       wrap.innerHTML = '';
       LEVELS.forEach(function (lv, i) {
         var el = document.createElement('div');
-        el.className = 'node ' + (i % 2 === 0 ? 'node--up' : 'node--down');
+        var edge = i === 0 ? ' node--first' : i === n - 1 ? ' node--last' : '';
+        el.className = 'node ' + (i % 2 === 0 ? 'node--up' : 'node--down') + edge;
         el.style.left = left(i) + '%';
         el.innerHTML = '<div class="node__dot"></div><div class="node__lbl">' + lv.name + '</div>';
         wrap.appendChild(el);

@@ -23,10 +23,16 @@
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--txt)}
+/* Die App ist als Ganzes nur vertikal gedacht. Absolut positionierte Elemente
+   (Journey-Labels an den Enden der Timeline) dürfen real breiter sein als
+   das Sichtfeld — je nach Systemschrift unterschiedlich stark — deshalb
+   kappt overflow-x das global, statt sich auf einzelne Fixes zu verlassen. */
+html,body{overflow-x:hidden;width:100%}
 body{
   font:400 15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;
   min-height:100dvh;
   overscroll-behavior-y:none;
+  overscroll-behavior-x:none;
   -webkit-font-smoothing:antialiased;
 }
 button,input,textarea{font-family:inherit;color:inherit}
@@ -107,7 +113,7 @@ button{border:0;background:none;cursor:pointer}
 
 /* ── Journey track ──────────────────────────────────────── */
 .journey{padding:4px 0 8px}
-.track{position:relative;height:78px;margin:0 -4px}
+.track{position:relative;height:78px}
 .track__line{
   position:absolute;left:4px;right:4px;top:39px;height:2px;
   background:#232a2c;border-radius:2px;overflow:hidden;
@@ -140,6 +146,12 @@ button{border:0;background:none;cursor:pointer}
 .node.is-current .node__lbl{color:var(--green-bright);font-weight:600}
 .node.is-current.node--up .node__dot{margin-top:-15px}
 .node.is-current.node--down .node__dot{margin-top:15px}
+
+/* Rand-Labels dürfen nicht über den ersten/letzten Punkt hinaus zentrieren —
+   je nach Systemschrift reicht das sonst über den Bildschirmrand hinaus und
+   macht die Seite horizontal scrollbar. Sie wachsen stattdessen nach innen. */
+.node--first .node__lbl{left:0;transform:none}
+.node--last .node__lbl{left:auto;right:0;transform:none}
 
 /* ── Cards ──────────────────────────────────────────────── */
 .card{
