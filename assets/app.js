@@ -461,7 +461,7 @@
     $('screenHome').hidden = on;
     $('screenMore').hidden = !on;
     $('btnMore').hidden = on;
-    window.scrollTo(0, 0);
+    $('screenMore').scrollTop = 0;   // der Screen scrollt sich selbst, nicht das Dokument
     if (on) {
       renderAll();
       var d = state.startedAt ? new Date(state.startedAt) : new Date();
@@ -494,8 +494,69 @@
     Store.saveState(state).then(function () { render(); toast('Startdatum gespeichert.'); });
   }
 
+  /* ── Elastischer Zug-Effekt auf dem Hauptscreen ──────────
+     Der Hauptscreen scrollt nie echt (overflow:hidden in app.css) — er ist
+     fest zugeschnitten. Damit sich das nicht komplett starr anfühlt, gibt
+     er beim Ziehen ein kleines Stück nach und federt beim Loslassen wie ein
+     Gummiband in die Mitte zurück. Bewusst wenig empfindlich: eine Totzone
+     fängt normale Taps ab, eine Dämpfung sorgt dafür, dass viel
+     Fingerbewegung nur wenig sichtbare Bewegung ergibt, und eine feste
+     Obergrenze verhindert, dass daraus doch ein echtes Scrollen wird. */
+  function initRubberBand(el) {
+    var DEAD_ZONE = 12;   // Bewegung darunter zählt als Tap, nicht als Ziehen
+    var MAX_TRAVEL = 22;  // weiter geht die Verschiebung nie, egal wie stark man zieht
+    var DIVISOR = 70;     // größer = spürbar unempfindlicher pro Fingerbewegung
+
+    var startX = 0, startY = 0, dragging = false, active = false;
+
+    function damp(px) {
+      var sign = px < 0 ? -1 : 1;
+      var d = Math.abs(px);
+      return sign * MAX_TRAVEL * (1 - 1 / (1 + d / DIVISOR));
+    }
+
+    function setPos(px, springBack) {
+      el.style.transition = springBack ? 'transform .42s cubic-bezier(.34,1.56,.64,1)' : 'none';
+      el.style.transform = px ? 'translateY(' + px.toFixed(1) + 'px)' : '';
+    }
+
+    el.addEventListener('touchstart', function (e) {
+      if (e.touches.length !== 1) return;
+      // eigene Scrollbereiche (die Heute-Liste) unangetastet lassen
+      if (e.target.closest('#todayList')) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      dragging = true;
+      active = false;
+      setPos(0, false); // eine laufende Rückfederung sofort und ohne Sprung stoppen
+    }, { passive: true });
+
+    el.addEventListener('touchmove', function (e) {
+      if (!dragging) return;
+      var dy = e.touches[0].clientY - startY;
+      var dx = e.touches[0].clientX - startX;
+      if (!active) {
+        if (Math.abs(dy) < DEAD_ZONE || Math.abs(dx) > Math.abs(dy)) return;
+        active = true;
+      }
+      var eff = dy - (dy > 0 ? DEAD_ZONE : -DEAD_ZONE);
+      setPos(damp(eff), false);
+      e.preventDefault();
+    }, { passive: false });
+
+    function release() {
+      dragging = false;
+      if (active) setPos(0, true);
+      active = false;
+    }
+    el.addEventListener('touchend', release, { passive: true });
+    el.addEventListener('touchcancel', release, { passive: true });
+  }
+
   /* ── Verdrahtung ──────────────────────────────────────── */
   function wire() {
+    initRubberBand($('screenHome'));
+
     $('shieldBtn').addEventListener('click', onShieldTap);
     $('shieldPill').addEventListener('click', function () { if (!state.shieldOn) startShield(); });
 
