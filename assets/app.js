@@ -588,14 +588,6 @@
       this.value = '';
     });
 
-    // Doppeltipp-Zoom unterbinden
-    var lastTouch = 0;
-    document.addEventListener('touchend', function (e) {
-      var now = Date.now();
-      if (now - lastTouch < 320) e.preventDefault();
-      lastTouch = now;
-    }, { passive: false });
-
     // Tag wechselt, während die App offen liegt
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) { resetTaps(); render(); }
@@ -622,7 +614,30 @@
 
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('sw.js').catch(function () {});
+        // updateViaCache:'none' erzwingt, dass sw.js selbst nie aus dem
+        // HTTP-Cache kommt — sonst prüft der Browser unter Umständen eine
+        // veraltete Kopie der Datei auf Änderungen und findet nie welche.
+        navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
+          .then(function (reg) {
+            // Jedes Mal, wenn die App wieder in den Vordergrund kommt, aktiv
+            // nach einer neueren Version fragen, statt auf den nächsten
+            // Neustart zu warten — genau der Fall "Update erschienen, App
+            // war die ganze Zeit als Icon offen".
+            document.addEventListener('visibilitychange', function () {
+              if (!document.hidden) reg.update().catch(function () {});
+            });
+          })
+          .catch(function () {});
+
+        // Sobald eine neue Version aktiv wird, einmalig neu laden, damit sie
+        // sofort greift — kein manuelles Schließen/Neuöffnen des
+        // Homescreen-Icons mehr nötig.
+        var reloaded = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+          if (reloaded) return;
+          reloaded = true;
+          window.location.reload();
+        });
       });
     }
   }
