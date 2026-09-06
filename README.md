@@ -34,13 +34,16 @@ Diese URL in Safari öffnen und wie oben installieren.
 
 ## Bedienung
 
-**Der Hauptscreen scrollt nicht.** Er ist fest auf ein iPhone 13 zugeschnitten — alle Werte
-passen ohne Rest ins Bild, auch mit ein paar Impulsen für heute (die Heute-Liste deckelt sich
-bei drei-vier Einträgen selbst und scrollt danach nur noch in sich). Zieht man trotzdem am
-Screen, gibt er ein kleines Stück elastisch nach und federt beim Loslassen zurück in die
-Mitte — bewusst wenig empfindlich, damit ein normaler Tap nie versehentlich als Ziehen zählt.
-Nur der *More*-Screen und einzelne lange Listen (die volle Impuls-Liste, das Sheet) scrollen
-echt, weil ihr Inhalt von Natur aus unterschiedlich lang ist.
+**Der Hauptscreen scrollt nicht.** Er ist fest auf ein iPhone 13 zugeschnitten, in der
+Schriftgröße der ursprünglichen Vorlage — großer Zähler, große Statistik, große Card-Texte.
+Zieht man trotzdem am Screen, gibt er ein kleines Stück elastisch nach und federt beim
+Loslassen zurück in die Mitte — bewusst wenig empfindlich, damit ein normaler Tap nie
+versehentlich als Ziehen zählt. Nur der *More*-Screen und einzelne lange Listen (die volle
+Impuls-Liste, das Sheet) scrollen echt, weil ihr Inhalt von Natur aus unterschiedlich lang ist.
+
+Eine bewusste Abweichung von der Vorlage: Eine Vorschau der heutigen Impulse hat auf dem
+Hauptscreen keinen Platz mehr, ohne die große Schrift wieder zu verkleinern. Alle Impulse —
+auch die von heute — stehen weiterhin vollständig unter *More → Impulse*.
 
 **Zähler.** Die große Zahl sind volle Tage seit dem Start des laufenden Streaks. Der Level
 ergibt sich daraus automatisch.

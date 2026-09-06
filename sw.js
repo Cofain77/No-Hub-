@@ -2,7 +2,7 @@
  * Er cached ausschließlich die App-Dateien — niemals Nutzerdaten.
  * Nutzerdaten liegen in IndexedDB und werden hier nicht angefasst.
  */
-var CACHE = 'nohub-shell-v4';
+var CACHE = 'nohub-shell-v5';
 var SHELL = [
   './',
   './index.html',
