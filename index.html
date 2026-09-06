@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no">
+<title>No hub</title>
+<meta name="theme-color" content="#0a0c0d">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="No hub">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+
+<div class="app" id="app">
+
+  <!-- ── Header ─────────────────────────────────────────── -->
+  <header class="topbar">
+    <button class="topbar__side topbar__side--left" id="shieldPill" type="button">
+      <span class="dot" id="shieldDot"></span><span id="shieldLabel">Shield On</span>
+    </button>
+    <div class="logo"><span class="logo__no">No</span><span class="logo__hub">hub</span></div>
+    <button class="topbar__side topbar__side--right" id="btnMore" type="button">More <span aria-hidden="true">&rarr;</span></button>
+  </header>
+
+  <!-- ── Main screen ────────────────────────────────────── -->
+  <main class="screen" id="screenHome">
+
+    <div class="hero">
+      <div class="badge" id="levelBadge">LEVEL 3 &middot; FIRST STEPS</div>
+      <div class="count" id="dayCount">0</div>
+      <div class="count__unit" id="dayUnit">DAYS</div>
+      <div class="count__since" id="sinceLine">&nbsp;</div>
+    </div>
+
+    <section class="journey">
+      <h2 class="sectitle">Your Journey</h2>
+      <div class="track" id="track">
+        <div class="track__line"><div class="track__fill" id="trackFill"></div></div>
+        <div class="track__nodes" id="trackNodes"></div>
+      </div>
+    </section>
+
+    <section class="card levelcard">
+      <div class="levelcard__head">
+        <div>
+          <div class="levelcard__name" id="lvName">First Steps</div>
+          <div class="levelcard__range" id="lvRange">Level 3 &middot; Days 2&ndash;7</div>
+        </div>
+        <div class="levelcard__next">
+          <div class="levelcard__nextlabel">Next level</div>
+          <div class="levelcard__nextval" id="lvNext">6d</div>
+        </div>
+      </div>
+      <div class="bar"><div class="bar__fill" id="lvBar"></div></div>
+      <p class="levelcard__text" id="lvText"></p>
+    </section>
+
+    <section class="stats">
+      <div class="card stat"><div class="stat__val" id="statBest">0</div><div class="stat__lbl">Best Streak</div></div>
+      <div class="card stat"><div class="stat__val" id="statShielded">0</div><div class="stat__lbl">Days Shielded</div></div>
+    </section>
+
+    <button class="shieldbtn" id="shieldBtn" type="button">
+      <span id="shieldBtnText">Shield Active</span>
+    </button>
+    <div class="shieldhint" id="shieldHint"></div>
+
+    <!-- Plus row directly beneath the shield bar -->
+    <div class="plusrow">
+      <button class="plusbtn" id="btnAddImpulse" type="button" aria-label="Impuls hinzufügen">+</button>
+      <div class="plusrow__label">Impuls</div>
+    </div>
+
+    <section class="today" id="todayWrap" hidden>
+      <h2 class="sectitle">Heute <span class="today__n" id="todayCount"></span></h2>
+      <ul class="ilist" id="todayList"></ul>
+    </section>
+
+    <div class="footspace"></div>
+  </main>
+
+  <!-- ── More screen ────────────────────────────────────── -->
+  <main class="screen screen--more" id="screenMore" hidden>
+    <button class="backbtn" id="btnBack" type="button">&larr; Zurück</button>
+
+    <section class="card block">
+      <h3 class="block__t">Daten exportieren</h3>
+      <p class="block__p">Der Export löscht nichts. Alle Einträge bleiben auf dem Gerät, damit sich über Jahre auswerten lässt.</p>
+      <button class="btn" id="btnCsv" type="button">CSV exportieren</button>
+      <button class="btn btn--ghost" id="btnJson" type="button">Vollbackup (JSON)</button>
+      <div class="block__meta" id="exportMeta"></div>
+    </section>
+
+    <section class="card block">
+      <h3 class="block__t">Backup einspielen</h3>
+      <p class="block__p">Führt ein JSON-Backup mit den vorhandenen Daten zusammen. Doppelte Einträge werden übersprungen.</p>
+      <label class="btn btn--ghost filelabel">Backup wählen
+        <input type="file" id="fileImport" accept="application/json,.json" hidden>
+      </label>
+    </section>
+
+    <section class="card block">
+      <h3 class="block__t">Startdatum</h3>
+      <p class="block__p">Falls der Start nachträglich korrigiert werden muss.</p>
+      <div class="row2">
+        <input type="date" id="editStartDate" class="input">
+        <input type="time" id="editStartTime" class="input">
+      </div>
+      <button class="btn" id="btnSaveStart" type="button">Startdatum speichern</button>
+    </section>
+
+    <section class="card block">
+      <h3 class="block__t">Impulse <span class="block__count" id="allCount"></span></h3>
+      <ul class="ilist ilist--all" id="allList"></ul>
+    </section>
+
+    <section class="card block">
+      <h3 class="block__t">Speicher</h3>
+      <div class="block__meta" id="storageMeta"></div>
+    </section>
+
+    <div class="footspace"></div>
+  </main>
+
+</div>
+
+<!-- ── Impulse sheet (half height) ──────────────────────── -->
+<div class="scrim" id="scrimImpulse" hidden></div>
+<div class="sheet sheet--half" id="sheetImpulse" hidden role="dialog" aria-modal="true" aria-label="Impuls hinzufügen">
+  <div class="sheet__grip"></div>
+  <div class="sheet__body">
+    <h2 class="sheet__title">Impuls</h2>
+    <div class="field">
+      <label class="field__l">Wann</label>
+      <div class="row2">
+        <input type="date" id="impDate" class="input">
+        <input type="time" id="impTime" class="input">
+      </div>
+    </div>
+    <div class="field">
+      <label class="field__l">Notiz <span class="field__hint">kurz halten</span></label>
+      <textarea id="impNote" class="notefield" rows="2" maxlength="280" placeholder="z. B. müde, Instagram"></textarea>
+    </div>
+  </div>
+  <div class="sheet__actions">
+    <button class="btn btn--ghost" id="impCancel" type="button">Abbrechen</button>
+    <button class="btn btn--primary" id="impSave" type="button">Speichern</button>
+  </div>
+</div>
+
+<!-- ── End Recovery sheet ───────────────────────────────── -->
+<div class="scrim" id="scrimEnd" hidden></div>
+<div class="sheet sheet--tall" id="sheetEnd" hidden role="dialog" aria-modal="true" aria-label="End Recovery">
+  <div class="sheet__body">
+    <div class="warnicon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2.6 4.5 5.6v6.1c0 4.6 3.1 8.4 7.5 9.7 4.4-1.3 7.5-5.1 7.5-9.7V5.6L12 2.6Z"/>
+        <path d="M12 8.4v4.4"/><path d="M12 16.2h.01"/>
+      </svg>
+    </div>
+    <h2 class="sheet__h1">End Recovery</h2>
+    <p class="sheet__p">Ending now will stop protection and reset your current progress.</p>
+    <div class="phraselabel">Type this exactly</div>
+    <div class="phrasebox" id="phraseTarget">I understand this will reset my progress</div>
+    <input type="text" id="phraseInput" class="phraseinput" placeholder="Confirmation phrase"
+           autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false">
+    <p class="sheet__note">Deine Impuls-Einträge bleiben erhalten. Zurückgesetzt wird nur der laufende Streak.</p>
+  </div>
+  <div class="sheet__actions">
+    <button class="btn btn--ghost" id="endCancel" type="button">Cancel</button>
+    <button class="btn btn--danger" id="endConfirm" type="button" disabled>End Recovery</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="assets/store.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
