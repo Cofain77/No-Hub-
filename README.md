@@ -62,26 +62,15 @@ Beim Zurücksetzen wird der laufende Streak in *Best Streak* und *Days Shielded*
 **Impuls-Einträge werden dabei nie gelöscht.**
 
 **Impuls erfassen.** Das **+** unter dem Shield-Balken öffnet ein Fenster auf halber
-Bildschirmhöhe mit drei Feldern:
+Bildschirmhöhe mit zwei Feldern:
 
 | Feld | Verhalten |
 |---|---|
 | Datum | vorbelegt mit dem Gerätedatum, zeigt *Heute* / *Gestern* / `TT.MM.JJ`, per Tap änderbar |
-| Impuls | Auswahl des Auslösers — was gerade lief, als der Impuls kam |
 | Zeit | vorbelegt mit der Gerätezeit, per Tap änderbar |
 
 Darunter ein bewusst kleines Notizfeld — ein bis drei Wörter genügen, mehr geht trotzdem.
-
-Der zuletzt gewählte Auslöser ist beim nächsten Mal vorausgewählt, weil sich Impulse in aller
-Regel wiederholen. Die Auswahlliste steht in `assets/app.js` in der Konstante `TRIGGERS`:
-
-```
-Langeweile · Stress · Müdigkeit · Allein · Social Media
-Nachts wach · Aufwachen · Frust · Einsamkeit · Sonstiges
-```
-
-Kurze Begriffe sind Absicht: Die Liste ist eine Auswertungsachse, keine Beschreibung. Wer sie
-ändert, sollte das früh tun — sonst zerfällt die Zeitreihe in alte und neue Kategorien.
+Kein Auswählen mehr nötig: Speichern geht direkt, ohne vorher eine Kategorie zu wählen.
 
 ---
 
@@ -115,8 +104,9 @@ trigger, note, created_at, exported_at
 
 `weekday_num` (1 = Montag) und `hour` liegen bewusst als eigene Spalten vor: damit lässt sich
 ohne Vorverarbeitung eine Heatmap Wochentag × Stunde bauen und die gefährlichste Tageszeit
-ablesen. `trigger` ist die zweite Auswertungsachse — sie beantwortet nicht *wann*, sondern
-*woraus* der Impuls entsteht.
+ablesen. Die Spalte `trigger` ist ein Überbleibsel einer früheren Auslöser-Auswahl, die
+wieder entfernt wurde — sie bleibt aus Kompatibilität zu älteren Exporten in der Kopfzeile
+stehen, ist bei neuen Einträgen aber immer leer.
 
 ### Vollbackup
 
