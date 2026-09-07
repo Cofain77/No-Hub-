@@ -7,13 +7,6 @@
   var TAPS_TO_END = 10;
   var TAP_TIMEOUT = 5000;
 
-  /* Auslöser für die Impuls-Auswahl. Reihenfolge = Reihenfolge im Picker.
-     Hier anpassen, wenn andere Kategorien besser passen. */
-  var TRIGGERS = [
-    'Langeweile', 'Stress', 'Müdigkeit', 'Allein', 'Social Media',
-    'Nachts wach', 'Aufwachen', 'Frust', 'Einsamkeit', 'Sonstiges'
-  ];
-
   var LEVELS = [
     { n: 1, name: 'Awakening',   start: 0,  range: 'Day 0',
       text: 'The decision is made. Nothing has changed yet, and that is fine. Getting through today is the entire task.' },
@@ -248,32 +241,17 @@
     document.body.style.overflow = '';
   }
 
-  function fillTriggerOptions() {
-    var sel = $('impTrigger');
-    if (sel.options.length) return;
-    TRIGGERS.forEach(function (t) {
-      var o = document.createElement('option');
-      o.value = t; o.textContent = t;
-      sel.appendChild(o);
-    });
-  }
-
   /* Die sichtbaren Boxen spiegeln nur, was in den unsichtbaren Feldern steht. */
   function syncPickerLabels() {
     var d = fromInputs($('impDate').value, $('impTime').value || '00:00');
     $('impDateLabel').textContent = d ? fmtDateLabel(d) : '—';
     $('impTimeLabel').textContent = $('impTime').value || '--:--';
-    $('impTrigLabel').textContent = $('impTrigger').value || '—';
   }
 
   function openImpulseSheet() {
     var now = new Date();
-    fillTriggerOptions();
     $('impDate').value = dateVal(now);
     $('impTime').value = timeVal(now);
-    // zuletzt gewählter Auslöser — Impulse wiederholen sich meist
-    $('impTrigger').value = (TRIGGERS.indexOf(state.lastTrigger) >= 0)
-      ? state.lastTrigger : TRIGGERS[0];
     $('impNote').value = '';
     syncPickerLabels();
     openSheet('sheetImpulse', 'scrimImpulse');
@@ -282,10 +260,7 @@
   function saveImpulse() {
     var when = fromInputs($('impDate').value, $('impTime').value);
     if (!when) { toast('Bitte Datum und Zeit prüfen.'); return; }
-    var trigger = $('impTrigger').value || '';
-    state.lastTrigger = trigger;
-    Store.saveState(state);
-    Store.addImpulse({ ts: when.toISOString(), trigger: trigger, note: $('impNote').value })
+    Store.addImpulse({ ts: when.toISOString(), note: $('impNote').value })
       .then(function (list) {
         IMPULSES = list;
         closeSheet('sheetImpulse', 'scrimImpulse');
@@ -564,7 +539,7 @@
     $('impCancel').addEventListener('click', function () { closeSheet('sheetImpulse', 'scrimImpulse'); });
     $('scrimImpulse').addEventListener('click', function () { closeSheet('sheetImpulse', 'scrimImpulse'); });
     $('impSave').addEventListener('click', saveImpulse);
-    ['impDate', 'impTime', 'impTrigger'].forEach(function (id) {
+    ['impDate', 'impTime'].forEach(function (id) {
       $(id).addEventListener('change', syncPickerLabels);
       $(id).addEventListener('input', syncPickerLabels);
     });
