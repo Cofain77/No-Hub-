@@ -61,16 +61,32 @@ muss exakt eingegeben werden. Erst dann wird der Knopf aktiv.
 Beim Zurücksetzen wird der laufende Streak in *Best Streak* und *Days Shielded* verbucht.
 **Impuls-Einträge werden dabei nie gelöscht.**
 
-**Impuls erfassen.** Das **+** unter dem Shield-Balken öffnet ein Fenster auf halber
-Bildschirmhöhe mit zwei Feldern:
+**Impuls erfassen.** Das **+** unter dem Shield-Balken öffnet ein Fenster mit:
 
-| Feld | Verhalten |
-|---|---|
-| Datum | vorbelegt mit dem Gerätedatum, zeigt *Heute* / *Gestern* / `TT.MM.JJ`, per Tap änderbar |
-| Zeit | vorbelegt mit der Gerätezeit, per Tap änderbar |
+| Feld | Skala | Verhalten |
+|---|---|---|
+| Datum | — | vorbelegt mit dem Gerätedatum, zeigt *Heute* / *Gestern* / `TT.MM.JJ`, per Tap änderbar |
+| Zeit | — | vorbelegt mit der Gerätezeit, per Tap änderbar |
+| Verlangen | 0–10 | wie stark der Drang war |
+| Stress | 0–10 | Anspannung unmittelbar davor |
+| Stimmung | 1–5 | Laune unmittelbar davor |
+| Schlaf, Stunden | 0–12 h | letzte Nacht, in Halbstundenschritten |
+| Schlaf, Qualität | 1–5 | letzte Nacht |
+| Allein | ja/nein | — |
+| Nachgegeben | ja/nein | ob es beim Impuls geblieben ist |
+| Notiz | — | bewusst klein, ein bis drei Wörter genügen |
 
-Darunter ein bewusst kleines Notizfeld — ein bis drei Wörter genügen, mehr geht trotzdem.
-Kein Auswählen mehr nötig: Speichern geht direkt, ohne vorher eine Kategorie zu wählen.
+**Alle Regler laufen in dieselbe Richtung: links grün = gut, rechts rot = schlecht.** Dadurch
+muss man im Moment des Erfassens nie überlegen, wo „besser" liegt. Das gilt auch für
+*Stimmung* und *Schlafqualität* — dort bedeutet also **1 = gut** und **5 = schlecht**, anders
+als man es von „Score" oder „Qualität" sonst kennt. Einzige Ausnahme ist die Schlafdauer: dort
+sind viele Stunden das Gute, deshalb dreht sich nur der Farbverlauf um, die Zahl bleibt
+selbsterklärend.
+
+Jeder Regler hat einen sinnvollen Startwert — wer nichts anfasst, kann direkt speichern.
+Die beiden Schlafwerte beziehen sich auf die letzte Nacht und sind daher für alle Impulse
+desselben Tages gleich: ab dem zweiten Eintrag am selben Tag werden sie automatisch
+übernommen, statt sie erneut einzustellen.
 
 ---
 
@@ -99,22 +115,41 @@ Spalten:
 
 ```
 id, date, time, iso_timestamp, weekday, weekday_num, hour, minute,
-streak_day, trigger, note, created_at, exported_at
+streak_days, craving_intensity, sleep_hours, sleep_quality, mood_score,
+stress_level, alone, gave_in, note, created_at, exported_at
 ```
 
-`weekday_num` (1 = Montag) und `hour` liegen bewusst als eigene Spalten vor: damit lässt sich
-ohne Vorverarbeitung eine Heatmap Wochentag × Stunde bauen und die gefährlichste Tageszeit
-ablesen.
+| Spalte | Bedeutung |
+|---|---|
+| `weekday_num` | 1 = Montag … 7 = Sonntag |
+| `hour`, `minute` | Uhrzeit als Zahl, für Zeitreihen direkt rechenbar |
+| `streak_days` | der wievielte Tag des damaligen Streaks (0 = Starttag) |
+| `craving_intensity` | 0–10, **0 = kein Verlangen**, 10 = übermächtig |
+| `sleep_hours` | Stunden der letzten Nacht, z. B. `5.5` |
+| `sleep_quality` | 1–5, **1 = erholt**, 5 = zerschlagen |
+| `mood_score` | 1–5, **1 = gute Stimmung**, 5 = schlechte |
+| `stress_level` | 0–10, **0 = entspannt**, 10 = am Limit |
+| `alone` | 0 = nein, 1 = ja |
+| `gave_in` | 0 = beim Impuls geblieben, 1 = nachgegeben |
 
-`streak_day` sagt, der wievielte Tag des damaligen Streaks es war, als der Impuls kam — dieselbe
-Zählweise wie der große Tageszähler auf dem Hauptscreen (0 = Starttag des Streaks). Damit lässt
-sich auswerten, ob Impulse eher am Anfang eines Streaks häufen (klassisch: erste Woche) oder
-erst nach längerer Zeit auftreten. Die Spalte bleibt leer, wenn zum Zeitpunkt des Impulses kein
-Streak lief — etwa in der Pause zwischen einem beendeten und einem neu gestarteten Streak.
+`weekday_num` und `hour` liegen bewusst als eigene Spalten vor: damit lässt sich ohne
+Vorverarbeitung eine Heatmap Wochentag × Stunde bauen und die gefährlichste Tageszeit ablesen.
 
-Die Spalte `trigger` ist ein Überbleibsel einer früheren Auslöser-Auswahl, die wieder entfernt
-wurde — sie bleibt aus Kompatibilität zu älteren Exporten in der Kopfzeile stehen, ist bei neuen
-Einträgen aber immer leer.
+`streak_days` beantwortet, ob Impulse sich eher am Anfang eines Streaks häufen (klassisch: erste
+Woche) oder erst nach längerer Zeit auftreten. Die Spalte bleibt leer, wenn zum Zeitpunkt des
+Impulses kein Streak lief — etwa in der Pause zwischen einem beendeten und einem neu gestarteten.
+
+`gave_in` ist die eigentliche Zielgröße jeder Auswertung: erst damit lässt sich trennen, welche
+Bedingungen bloß ein Verlangen erzeugen und welche tatsächlich zum Rückfall führen. Ohne diese
+Spalte korrelieren alle anderen Werte nur mit sich selbst.
+
+**Wichtig für die Auswertung:** In `mood_score` und `sleep_quality` bedeutet **1 = gut**, nicht
+5. Das folgt der einheitlichen Reglerrichtung in der App (links grün = gut) und ist bewusst
+gegen die übliche Lesart von „Score" und „Qualität" gesetzt. Wer die Daten einer KI vorlegt,
+sollte das dazusagen — sonst dreht sie die Interpretation um.
+
+Leere Zellen heißen „nicht erfasst", nicht „null". Einträge aus der Zeit vor diesen Feldern
+bleiben daher in den neuen Spalten leer, statt fälschlich als 0 zu gelten.
 
 ### Vollbackup
 

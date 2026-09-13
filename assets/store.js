@@ -126,10 +126,21 @@
   }
 
   function addImpulse(entry) {
+    // Zahlenfelder bewusst null statt 0, wenn nichts erfasst wurde — sonst
+    // ist ein fehlender Wert später nicht von einer echten 0 zu unterscheiden.
+    function n(v) {
+      return (v === null || v === undefined || v === '' || isNaN(Number(v))) ? null : Number(v);
+    }
     var rec = {
       id: entry.id || newId(),
       ts: entry.ts,                                  // ISO-String des Ereignisses
-      trigger: (entry.trigger || '').trim(),         // Auslöser aus der Auswahl
+      craving: n(entry.craving),                     // 0–10, 0 = kein Verlangen
+      stress: n(entry.stress),                       // 0–10, 0 = entspannt
+      mood: n(entry.mood),                           // 1–5,  1 = gute Stimmung
+      sleepHours: n(entry.sleepHours),               // Stunden der letzten Nacht
+      sleepQuality: n(entry.sleepQuality),           // 1–5,  1 = erholt
+      alone: n(entry.alone),                         // 0/1
+      gaveIn: n(entry.gaveIn),                       // 0/1
       note: (entry.note || '').trim(),
       createdAt: entry.createdAt || new Date().toISOString(),
       exportedAt: entry.exportedAt || null

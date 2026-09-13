@@ -162,6 +162,85 @@
           <input type="time" id="impTime" class="pbox__in"></label>
       </div>
 
+    </section>
+
+    <section class="tcard tcard--state">
+      <h2 class="tcard__t">Zustand <span class="tcard__hint">vor dem Impuls</span></h2>
+
+      <div class="srow">
+        <div class="srow__head">
+          <span class="srow__label">Verlangen</span>
+          <span class="srow__val" id="valCraving">5</span>
+        </div>
+        <input type="range" class="slider" id="inCraving" min="0" max="10" step="1" value="5"
+               aria-label="Verlangen, 0 bis 10">
+        <div class="srow__ends"><span>kein Verlangen</span><span>übermächtig</span></div>
+      </div>
+
+      <div class="srow">
+        <div class="srow__head">
+          <span class="srow__label">Stress</span>
+          <span class="srow__val" id="valStress">5</span>
+        </div>
+        <input type="range" class="slider" id="inStress" min="0" max="10" step="1" value="5"
+               aria-label="Stress, 0 bis 10">
+        <div class="srow__ends"><span>entspannt</span><span>am Limit</span></div>
+      </div>
+
+      <div class="srow">
+        <div class="srow__head">
+          <span class="srow__label">Stimmung</span>
+          <span class="srow__val" id="valMood">3</span>
+        </div>
+        <input type="range" class="slider" id="inMood" min="1" max="5" step="1" value="3"
+               aria-label="Stimmung, 1 bis 5">
+        <div class="srow__ends"><span>gut</span><span>schlecht</span></div>
+      </div>
+    </section>
+
+    <section class="tcard tcard--state">
+      <h2 class="tcard__t">Schlaf <span class="tcard__hint">letzte Nacht</span></h2>
+
+      <div class="srow">
+        <div class="srow__head">
+          <span class="srow__label">Stunden</span>
+          <span class="srow__val srow__val--plain" id="valSleepH">7,0 h</span>
+        </div>
+        <input type="range" class="slider slider--rev" id="inSleepH" min="0" max="12" step="0.5" value="7"
+               aria-label="Schlafstunden, 0 bis 12">
+        <div class="srow__ends"><span>0 h</span><span>12 h</span></div>
+      </div>
+
+      <div class="srow">
+        <div class="srow__head">
+          <span class="srow__label">Qualität</span>
+          <span class="srow__val" id="valSleepQ">3</span>
+        </div>
+        <input type="range" class="slider" id="inSleepQ" min="1" max="5" step="1" value="3"
+               aria-label="Schlafqualität, 1 bis 5">
+        <div class="srow__ends"><span>erholt</span><span>zerschlagen</span></div>
+      </div>
+    </section>
+
+    <section class="tcard tcard--state">
+      <h2 class="tcard__t">Kontext</h2>
+
+      <div class="trow">
+        <span class="trow__label">Allein</span>
+        <div class="seg" id="segAlone" role="group" aria-label="Allein">
+          <button type="button" class="seg__b is-on" data-v="0">Nein</button>
+          <button type="button" class="seg__b" data-v="1">Ja</button>
+        </div>
+      </div>
+
+      <div class="trow">
+        <span class="trow__label">Nachgegeben</span>
+        <div class="seg" id="segGaveIn" role="group" aria-label="Nachgegeben">
+          <button type="button" class="seg__b is-on" data-v="0">Nein</button>
+          <button type="button" class="seg__b seg__b--bad" data-v="1">Ja</button>
+        </div>
+      </div>
+
       <textarea id="impNote" class="notefield" rows="2" maxlength="280"
                 placeholder="Notiz, kurz halten"></textarea>
     </section>
