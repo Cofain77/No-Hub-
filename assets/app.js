@@ -174,7 +174,15 @@
     html += '<span class="ientry__trig"></span><span class="ientry__note"></span>' +
             '<button class="ientry__del" type="button" aria-label="Löschen">&times;</button>';
     li.innerHTML = html;
-    li.querySelector('.ientry__trig').textContent = rec.trigger || '';
+    // Verlangen als Kurzinfo, damit die Liste auf einen Blick zeigt, wie
+    // stark es war — eingefärbt wie der Regler beim Erfassen.
+    var badge = li.querySelector('.ientry__trig');
+    if (rec.craving != null) {
+      badge.textContent = 'V ' + rec.craving;
+      badge.style.color = scaleColor(rec.craving / 10);
+      badge.style.background = 'rgba(255,255,255,.05)';
+      if (rec.gaveIn) badge.textContent += ' ·';
+    }
     li.querySelector('.ientry__note').textContent = rec.note || '';
     li.querySelector('.ientry__del').addEventListener('click', function () {
       if (!confirm('Diesen Impuls löschen?')) return;
@@ -248,11 +256,92 @@
     $('impTimeLabel').textContent = $('impTime').value || '--:--';
   }
 
+  /* ── Zustands-Regler ──────────────────────────────────────
+     Einheitliche Richtung: links = gut, rechts = schlecht. Nur die
+     Schlafdauer ist umgekehrt (viel Schlaf = gut), deshalb `rev`. */
+  var SLIDERS = [
+    { input: 'inCraving', label: 'valCraving', field: 'craving',     min: 0, max: 10, def: 5 },
+    { input: 'inStress',  label: 'valStress',  field: 'stress',      min: 0, max: 10, def: 5 },
+    { input: 'inMood',    label: 'valMood',    field: 'mood',        min: 1, max: 5,  def: 3 },
+    { input: 'inSleepH',  label: 'valSleepH',  field: 'sleepHours',  min: 0, max: 12, def: 7, rev: true, unit: ' h' },
+    { input: 'inSleepQ',  label: 'valSleepQ',  field: 'sleepQuality',min: 1, max: 5,  def: 3 }
+  ];
+
+  /* Farbverlauf grün → rot, identisch zu den Stops im CSS-Track. */
+  var SCALE_STOPS = [
+    [0.00, [47, 191, 113]], [0.32, [157, 196, 78]],
+    [0.58, [224, 180, 60]], [1.00, [239, 68, 68]]
+  ];
+  function scaleColor(t) {
+    t = Math.max(0, Math.min(1, t));
+    for (var i = 0; i < SCALE_STOPS.length - 1; i++) {
+      var a = SCALE_STOPS[i], b = SCALE_STOPS[i + 1];
+      if (t >= a[0] && t <= b[0]) {
+        var f = (b[0] - a[0]) === 0 ? 0 : (t - a[0]) / (b[0] - a[0]);
+        return 'rgb(' + [0, 1, 2].map(function (k) {
+          return Math.round(a[1][k] + (b[1][k] - a[1][k]) * f);
+        }).join(',') + ')';
+      }
+    }
+    return 'rgb(239,68,68)';
+  }
+
+  function syncSlider(cfg) {
+    var el = $(cfg.input);
+    var v = parseFloat(el.value);
+    var t = (v - cfg.min) / (cfg.max - cfg.min);
+    if (cfg.rev) t = 1 - t;                       // viel Schlaf = grün
+    var color = scaleColor(t);
+    el.style.setProperty('--scale-c', color);
+    var lbl = $(cfg.label);
+    lbl.style.setProperty('--scale-c', color);
+    lbl.textContent = cfg.unit
+      ? v.toFixed(1).replace('.', ',') + cfg.unit
+      : String(v);
+  }
+
+  function syncAllSliders() { SLIDERS.forEach(syncSlider); }
+
+  function setSeg(groupId, value) {
+    Array.prototype.forEach.call($(groupId).children, function (b) {
+      b.classList.toggle('is-on', b.getAttribute('data-v') === String(value));
+    });
+  }
+  function getSeg(groupId) {
+    var on = $(groupId).querySelector('.is-on');
+    return on ? Number(on.getAttribute('data-v')) : 0;
+  }
+
+  /* Schlafwerte beziehen sich auf die letzte Nacht — bei mehreren Impulsen
+     am selben Tag also identisch. Deshalb aus dem letzten heutigen Eintrag
+     übernehmen, statt sie jedes Mal neu einstellen zu lassen. */
+  function sleepFromToday() {
+    var now = new Date();
+    for (var i = 0; i < IMPULSES.length; i++) {
+      var r = IMPULSES[i];
+      if (isSameDay(new Date(r.ts), now) && r.sleepHours != null) return r;
+    }
+    return null;
+  }
+
   function openImpulseSheet() {
     var now = new Date();
     $('impDate').value = dateVal(now);
     $('impTime').value = timeVal(now);
     $('impNote').value = '';
+
+    var carry = sleepFromToday();
+    SLIDERS.forEach(function (cfg) {
+      var v = cfg.def;
+      if (carry && (cfg.field === 'sleepHours' || cfg.field === 'sleepQuality')) {
+        if (carry[cfg.field] != null) v = carry[cfg.field];
+      }
+      $(cfg.input).value = v;
+    });
+    setSeg('segAlone', 0);
+    setSeg('segGaveIn', 0);
+
+    syncAllSliders();
     syncPickerLabels();
     openSheet('sheetImpulse', 'scrimImpulse');
   }
@@ -260,7 +349,12 @@
   function saveImpulse() {
     var when = fromInputs($('impDate').value, $('impTime').value);
     if (!when) { toast('Bitte Datum und Zeit prüfen.'); return; }
-    Store.addImpulse({ ts: when.toISOString(), note: $('impNote').value })
+    var entry = { ts: when.toISOString(), note: $('impNote').value };
+    SLIDERS.forEach(function (cfg) { entry[cfg.field] = parseFloat($(cfg.input).value); });
+    entry.alone = getSeg('segAlone');
+    entry.gaveIn = getSeg('segGaveIn');
+
+    Store.addImpulse(entry)
       .then(function (list) {
         IMPULSES = list;
         closeSheet('sheetImpulse', 'scrimImpulse');
@@ -328,6 +422,13 @@
     return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
 
+  /* Zahlenfeld für den Export: leer statt 0, wenn nie erfasst — sonst wäre
+     ein fehlender Wert später nicht von einer echten 0 zu unterscheiden.
+     Punkt als Dezimaltrennzeichen, damit Auswertungstools direkt rechnen. */
+  function num(v) {
+    return (v === null || v === undefined || v === '') ? '' : String(v);
+  }
+
   /* Alle bekannten Streak-Zeiträume: abgeschlossene aus state.resets plus der
      laufende, falls Shield gerade aktiv ist. Ein offener Zeitraum endet bei
      Infinity, damit auch Impulse "bis jetzt" hineinfallen. */
@@ -358,7 +459,8 @@
 
   function buildCsv() {
     var head = ['id', 'date', 'time', 'iso_timestamp', 'weekday', 'weekday_num', 'hour', 'minute',
-                'streak_day', 'trigger', 'note', 'created_at', 'exported_at'];
+                'streak_days', 'craving_intensity', 'sleep_hours', 'sleep_quality', 'mood_score',
+                'stress_level', 'alone', 'gave_in', 'note', 'created_at', 'exported_at'];
     var rows = [head.join(',')];
     // aufsteigend nach Zeit — angenehmer für Zeitreihen-Auswertung
     var list = IMPULSES.slice().sort(function (a, b) { return a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0; });
@@ -370,7 +472,9 @@
         (d.getDay() === 0 ? 7 : d.getDay()),
         d.getHours(), d.getMinutes(),
         streakDayFor(r.ts),
-        r.trigger || '', r.note || '', r.createdAt || '', r.exportedAt || ''
+        num(r.craving), num(r.sleepHours), num(r.sleepQuality), num(r.mood), num(r.stress),
+        num(r.alone), num(r.gaveIn),
+        r.note || '', r.createdAt || '', r.exportedAt || ''
       ].map(csvCell).join(','));
     });
     return rows.join('\r\n') + '\r\n';
@@ -571,6 +675,21 @@
     ['impDate', 'impTime'].forEach(function (id) {
       $(id).addEventListener('change', syncPickerLabels);
       $(id).addEventListener('input', syncPickerLabels);
+    });
+
+    SLIDERS.forEach(function (cfg) {
+      var el = $(cfg.input);
+      el.addEventListener('input', function () { syncSlider(cfg); });
+      el.addEventListener('change', function () { syncSlider(cfg); haptic(5); });
+    });
+
+    ['segAlone', 'segGaveIn'].forEach(function (groupId) {
+      $(groupId).addEventListener('click', function (e) {
+        var b = e.target.closest('.seg__b');
+        if (!b) return;
+        setSeg(groupId, b.getAttribute('data-v'));
+        haptic(6);
+      });
     });
 
     $('phraseInput').addEventListener('input', function () {

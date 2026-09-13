@@ -365,6 +365,84 @@ button{border:0;background:none;cursor:pointer}
   -webkit-appearance:none;appearance:none;
 }
 
+/* ── Schieberegler für die Zustandswerte ─────────────────
+   Einheitliche Richtung über alle Skalen: links grün = gut, rechts rot =
+   schlecht. Dadurch muss man beim Erfassen nie überlegen, in welche
+   Richtung „besser" liegt. Einzige Ausnahme ist die Schlafdauer
+   (slider--rev): dort sind viele Stunden das Gute, deshalb dreht sich dort
+   nur der Farbverlauf um — die Zahl selbst bleibt selbsterklärend. */
+.tcard--state{margin-top:10px}
+.tcard__hint{font-size:12px;font-weight:500;color:var(--txt-3);letter-spacing:0}
+
+.srow{padding:7px 0 2px}
+.srow__head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.srow__label{font-size:15.5px;font-weight:500}
+.srow__val{
+  font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;
+  min-width:34px;text-align:right;color:var(--scale-c,var(--txt));
+}
+.srow__val--plain{color:var(--txt)}
+.srow__ends{
+  display:flex;justify-content:space-between;gap:8px;
+  margin-top:1px;font-size:10.5px;color:#5c6568;
+}
+
+.slider{
+  -webkit-appearance:none;appearance:none;
+  width:100%;height:30px;margin:3px 0 0;padding:0;
+  background:transparent;display:block;
+}
+.slider:focus{outline:none}
+/* Track */
+.slider::-webkit-slider-runnable-track{
+  height:6px;border-radius:99px;border:0;
+  background:linear-gradient(90deg,#2fbf71 0%,#9dc44e 32%,#e0b43c 58%,#ef4444 100%);
+}
+.slider::-moz-range-track{
+  height:6px;border-radius:99px;border:0;
+  background:linear-gradient(90deg,#2fbf71 0%,#9dc44e 32%,#e0b43c 58%,#ef4444 100%);
+}
+/* Schlafdauer: viel Schlaf ist das Gute, also Verlauf andersherum */
+.slider--rev::-webkit-slider-runnable-track{
+  background:linear-gradient(90deg,#ef4444 0%,#e0b43c 42%,#9dc44e 68%,#2fbf71 100%);
+}
+.slider--rev::-moz-range-track{
+  background:linear-gradient(90deg,#ef4444 0%,#e0b43c 42%,#9dc44e 68%,#2fbf71 100%);
+}
+/* Griff — Farbe folgt dem aktuellen Wert (per JS gesetzt) */
+.slider::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:26px;height:26px;border-radius:50%;
+  background:#f4f7f6;border:4px solid var(--scale-c,#8b9599);
+  margin-top:-10px;
+  box-shadow:0 2px 7px rgba(0,0,0,.45);
+}
+.slider::-moz-range-thumb{
+  width:26px;height:26px;border-radius:50%;
+  background:#f4f7f6;border:4px solid var(--scale-c,#8b9599);
+  box-shadow:0 2px 7px rgba(0,0,0,.45);
+}
+.slider:active::-webkit-slider-thumb{transform:scale(1.08)}
+
+/* ── Ja/Nein-Umschalter ─────────────────────────────────── */
+.trow{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;padding:7px 0;
+}
+.trow__label{font-size:15.5px;font-weight:500}
+.seg{
+  display:grid;grid-template-columns:1fr 1fr;gap:3px;
+  background:var(--card-2);border:1px solid #2b3336;
+  border-radius:12px;padding:3px;min-width:132px;
+}
+.seg__b{
+  padding:8px 6px;border-radius:9px;
+  font-size:14.5px;font-weight:600;color:var(--txt-3);
+  transition:background .15s ease,color .15s ease;
+}
+.seg__b.is-on{background:#2b3336;color:var(--txt)}
+.seg__b--bad.is-on{background:var(--red-dim);color:#f87171}
+
 .notefield{
   width:100%;margin-top:12px;padding:11px 14px;border-radius:13px;resize:none;
   background:#20272a;border:1px solid transparent;
