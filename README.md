@@ -99,14 +99,22 @@ Spalten:
 
 ```
 id, date, time, iso_timestamp, weekday, weekday_num, hour, minute,
-trigger, note, created_at, exported_at
+streak_day, trigger, note, created_at, exported_at
 ```
 
 `weekday_num` (1 = Montag) und `hour` liegen bewusst als eigene Spalten vor: damit lässt sich
 ohne Vorverarbeitung eine Heatmap Wochentag × Stunde bauen und die gefährlichste Tageszeit
-ablesen. Die Spalte `trigger` ist ein Überbleibsel einer früheren Auslöser-Auswahl, die
-wieder entfernt wurde — sie bleibt aus Kompatibilität zu älteren Exporten in der Kopfzeile
-stehen, ist bei neuen Einträgen aber immer leer.
+ablesen.
+
+`streak_day` sagt, der wievielte Tag des damaligen Streaks es war, als der Impuls kam — dieselbe
+Zählweise wie der große Tageszähler auf dem Hauptscreen (0 = Starttag des Streaks). Damit lässt
+sich auswerten, ob Impulse eher am Anfang eines Streaks häufen (klassisch: erste Woche) oder
+erst nach längerer Zeit auftreten. Die Spalte bleibt leer, wenn zum Zeitpunkt des Impulses kein
+Streak lief — etwa in der Pause zwischen einem beendeten und einem neu gestarteten Streak.
+
+Die Spalte `trigger` ist ein Überbleibsel einer früheren Auslöser-Auswahl, die wieder entfernt
+wurde — sie bleibt aus Kompatibilität zu älteren Exporten in der Kopfzeile stehen, ist bei neuen
+Einträgen aber immer leer.
 
 ### Vollbackup
 

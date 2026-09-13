@@ -328,9 +328,37 @@
     return /[",\n;]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
   }
 
+  /* Alle bekannten Streak-Zeiträume: abgeschlossene aus state.resets plus der
+     laufende, falls Shield gerade aktiv ist. Ein offener Zeitraum endet bei
+     Infinity, damit auch Impulse "bis jetzt" hineinfallen. */
+  function streakPeriods() {
+    var periods = (state.resets || []).map(function (r) {
+      return { start: new Date(r.startedAt).getTime(), end: new Date(r.endedAt).getTime() };
+    });
+    if (state.shieldOn && state.startedAt) {
+      periods.push({ start: new Date(state.startedAt).getTime(), end: Infinity });
+    }
+    return periods;
+  }
+
+  /* Wie viele volle Tage des laufenden Streaks waren zum Zeitpunkt tsIso schon
+     um — dieselbe Zählweise wie der große Tageszähler auf dem Hauptscreen
+     (0 = Starttag). Leer, wenn der Impuls in keinen bekannten Zeitraum fällt
+     (z. B. während einer Pause zwischen zwei Streaks erfasst). */
+  function streakDayFor(tsIso) {
+    var t = new Date(tsIso).getTime();
+    var periods = streakPeriods();
+    for (var i = 0; i < periods.length; i++) {
+      if (t >= periods[i].start && t < periods[i].end) {
+        return Math.floor((t - periods[i].start) / DAY);
+      }
+    }
+    return '';
+  }
+
   function buildCsv() {
     var head = ['id', 'date', 'time', 'iso_timestamp', 'weekday', 'weekday_num', 'hour', 'minute',
-                'trigger', 'note', 'created_at', 'exported_at'];
+                'streak_day', 'trigger', 'note', 'created_at', 'exported_at'];
     var rows = [head.join(',')];
     // aufsteigend nach Zeit — angenehmer für Zeitreihen-Auswertung
     var list = IMPULSES.slice().sort(function (a, b) { return a.ts < b.ts ? -1 : a.ts > b.ts ? 1 : 0; });
@@ -341,6 +369,7 @@
         d.toLocaleDateString('en-US', { weekday: 'long' }),
         (d.getDay() === 0 ? 7 : d.getDay()),
         d.getHours(), d.getMinutes(),
+        streakDayFor(r.ts),
         r.trigger || '', r.note || '', r.createdAt || '', r.exportedAt || ''
       ].map(csvCell).join(','));
     });
